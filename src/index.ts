@@ -6,9 +6,13 @@ import z from "zod";
 import jwt from "jsonwebtoken";
 import { JWT_PASSWORD } from "./config";
 import { userMiddleware } from "./middleware";
+import  dotenv  from "dotenv"
 
 const app = express();
 
+dotenv.config();
+
+const url = process.env.MONGOLAB_URI as string;
 app.use(express.json());
 app.use(cors());
 
@@ -88,7 +92,8 @@ app.post("/todo", userMiddleware, async (req, res) =>{
     await TodoModel.create({
         title,
         description,
-        done
+        done,
+        userId: req.userId
     })
 
     res.status(200).json({
@@ -100,18 +105,30 @@ app.post("/todo", userMiddleware, async (req, res) =>{
 app.get("/todos", userMiddleware, async (req, res) => {
     const userId = req.userId;
 
-    const response = await TodoModel.find({
+    const todos = await TodoModel.find({
         userId
     }).populate("userId", "username");
 
     res.json({
-        response
+        todos: todos
+    })
+})
+
+app.delete("/todos", userMiddleware, async(req, res) => {
+    const todoId = req.body.todoId;
+
+    await TodoModel.deleteMany({
+        todoId
+    })
+
+    res.json({
+        message: "deleted successfully"
     })
 })
 
 
 async function main(){
-    await mongoose.connect("");
+    await mongoose.connect(url);
     app.listen(3000)
 }
 main();

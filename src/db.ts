@@ -1,6 +1,10 @@
 import mongoose, { model, Schema } from "mongoose"
+import dotenv from 'dotenv'
 
-mongoose.connect("");
+dotenv.config();
+const url = process.env.MONGOLAB_URI as string
+
+mongoose.connect(url);
 
 const UserSchema = new Schema({
     username: {type: String , unique: true},
@@ -13,7 +17,7 @@ const TodoSchema = new Schema({
     title: String,
     done: Boolean,
     description: String,
-    userId: { type: mongoose.Types.ObjectId, ref: 'user', required: true}
+    userId: { type: mongoose.Types.ObjectId, ref: 'user', requrired: true}
 });
 
 export const TodoModel = model("todo", TodoSchema);
